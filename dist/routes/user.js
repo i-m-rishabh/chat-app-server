@@ -23,18 +23,25 @@ router.post('/signup', (req, res) => __awaiter(void 0, void 0, void 0, function*
     try {
         bcrypt_1.default.hash(password, 10, function (err, hash) {
             return __awaiter(this, void 0, void 0, function* () {
-                yield user_1.default.create({
-                    username: username,
-                    email: email,
-                    password: hash,
-                    phone: phone,
-                });
-                res.status(200).json('signed up successfully');
+                try {
+                    yield user_1.default.create({
+                        username: username,
+                        email: email,
+                        password: hash,
+                        phone: phone,
+                    });
+                    res.status(200).json('signed up successfully');
+                }
+                catch (error) {
+                    console.log(error);
+                    res.status(400).json({ success: false, message: error.errors[0].message });
+                }
             });
         });
     }
     catch (error) {
-        res.status(400).json({ message: 'something went wrong', error: error.errors[0].message });
+        console.log(error);
+        res.status(400).json({ message: 'something went wrong', error: error });
     }
 }));
 exports.default = router;

@@ -18,7 +18,9 @@ const user_1 = __importDefault(require("./routes/user"));
 const db_1 = __importDefault(require("./database/db"));
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
-app.use((0, cors_1.default)());
+app.use((0, cors_1.default)({
+    origin: "http://localhost:3000"
+}));
 app.use('/user', user_1.default);
 db_1.default.sync()
     .then(() => {

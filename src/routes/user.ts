@@ -12,17 +12,24 @@ router.post('/signup', async (req, res)=>{
     // console.log([username, email, password, phone]);
    try{
     bcrypt.hash(password, 10, async function(err:any, hash:string) {
-        await User.create({
-            username: username,
-            email: email,
-            password: hash,
-            phone: phone,
-        });
-        res.status(200).json('signed up successfully');
+        try{
+            await User.create({
+                username: username,
+                email: email,
+                password: hash,
+                phone: phone,
+            });
+            res.status(200).json({success:true, message:'signed up successfully'});
+        }
+        catch(error:any){
+            // console.log(error);
+            res.status(400).json({success: false, message: error.errors[0].message})
+        }
     });
    }
     catch(error: any){
-        res.status(400).json({message: 'something went wrong', error: error.errors[0].message})
+        // console.log(error);
+        res.status(400).json({message: 'something went wrong', error: error})
    }
 });
 

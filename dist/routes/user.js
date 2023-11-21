@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const user_1 = __importDefault(require("../models/user"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const router = express_1.default.Router();
 router.post('/signup', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const userData = req.body;
@@ -30,18 +31,48 @@ router.post('/signup', (req, res) => __awaiter(void 0, void 0, void 0, function*
                         password: hash,
                         phone: phone,
                     });
-                    res.status(200).json('signed up successfully');
+                    res.status(200).json({ success: true, message: 'signed up successfully' });
                 }
                 catch (error) {
-                    console.log(error);
+                    // console.log(error);
                     res.status(400).json({ success: false, message: error.errors[0].message });
                 }
             });
         });
     }
     catch (error) {
-        console.log(error);
+        // console.log(error);
         res.status(400).json({ message: 'something went wrong', error: error });
+    }
+}));
+const generateToken = (user) => __awaiter(void 0, void 0, void 0, function* () {
+    // const {id} = user;
+    const token = jsonwebtoken_1.default.sign({ id: user.id }, 'my-secret-key');
+    // console.log(token);
+    return token;
+});
+router.post('/login', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { email, password } = req.body;
+    console.log([email, password]);
+    try {
+        const user = yield user_1.default.findOne({ where: { email: email } });
+        if (user) {
+            bcrypt_1.default.compare(password, user.password, (err, result) => __awaiter(void 0, void 0, void 0, function* () {
+                if (result) {
+                    res.status(201).json({ success: true, message: 'user authenticated successfully', token: yield generateToken(user) });
+                }
+                else {
+                    res.status(401).json({ success: false, message: 'authentication failed' });
+                }
+            }));
+        }
+        else {
+            res.status(404).json({ success: false, message: 'email does not exist' });
+        }
+    }
+    catch (err) {
+        // console.error(err);
+        res.status(400).json({ success: false, message: err });
     }
 }));
 exports.default = router;

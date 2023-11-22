@@ -16,6 +16,7 @@ const express_1 = __importDefault(require("express"));
 const user_1 = __importDefault(require("../models/user"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const authenticate_1 = __importDefault(require("../auth/authenticate"));
 const router = express_1.default.Router();
 router.post('/signup', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const userData = req.body;
@@ -30,6 +31,7 @@ router.post('/signup', (req, res) => __awaiter(void 0, void 0, void 0, function*
                         email: email,
                         password: hash,
                         phone: phone,
+                        isActive: false,
                     });
                     res.status(200).json({ success: true, message: 'signed up successfully' });
                 }
@@ -53,12 +55,13 @@ const generateToken = (user) => __awaiter(void 0, void 0, void 0, function* () {
 });
 router.post('/login', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password } = req.body;
-    console.log([email, password]);
+    // console.log([email, password]);
     try {
         const user = yield user_1.default.findOne({ where: { email: email } });
         if (user) {
             bcrypt_1.default.compare(password, user.password, (err, result) => __awaiter(void 0, void 0, void 0, function* () {
                 if (result) {
+                    yield user_1.default.update({ isActive: true }, { where: { id: user.id } });
                     res.status(201).json({ success: true, message: 'user authenticated successfully', token: yield generateToken(user) });
                 }
                 else {
@@ -73,6 +76,28 @@ router.post('/login', (req, res) => __awaiter(void 0, void 0, void 0, function* 
     catch (err) {
         // console.error(err);
         res.status(400).json({ success: false, message: err });
+    }
+}));
+//get all active users
+router.get('/', authenticate_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const activeUsers = yield user_1.default.findAll({ where: { isActive: true } });
+    res.status(200).json({ success: true, data: activeUsers });
+}));
+//logout user
+router.get('/logout', authenticate_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const user = req.user;
+        if (!user || !user.id) {
+            return res.status(401).json({ success: false, message: 'User not authenticated' });
+        }
+        else {
+            yield user_1.default.update({ isActive: false }, { where: { id: user.id } });
+            res.status(200).json({ success: true, message: 'successfully logged out' });
+        }
+    }
+    catch (error) {
+        console.error(error);
+        res.status(400).json({ success: false, message: 'error in active status update' });
     }
 }));
 exports.default = router;

@@ -21,7 +21,7 @@ app.use(express_1.default.json());
 app.use((0, cors_1.default)({
     origin: "http://localhost:3000"
 }));
-app.use('/user', user_1.default);
+app.use('/', user_1.default);
 db_1.default.sync()
     .then(() => {
     app.listen(5000, () => __awaiter(void 0, void 0, void 0, function* () {

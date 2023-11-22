@@ -21,6 +21,10 @@ const User = db_1.default.define('user', {
     password: {
         type: sequelize_1.default.STRING,
         allowNull: false,
+    },
+    isActive: {
+        type: sequelize_1.default.BOOLEAN,
+        allowNull: false,
     }
 });
 exports.default = User;

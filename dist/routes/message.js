@@ -13,30 +13,21 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const cors_1 = __importDefault(require("cors"));
-const user_1 = __importDefault(require("./routes/user"));
-const message_1 = __importDefault(require("./routes/message"));
-const db_1 = __importDefault(require("./database/db"));
-const app = (0, express_1.default)();
-app.use(express_1.default.json());
-app.use((0, cors_1.default)({
-    origin: "http://localhost:3000"
+const authenticate_1 = __importDefault(require("../auth/authenticate"));
+const user_1 = __importDefault(require("../models/user"));
+const router = express_1.default.Router();
+router.post('/add-message', authenticate_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const text = req.body.text;
+    const user = yield user_1.default.findOne({ where: { id: req.user.id } });
+    console.log(user);
+    if (user) {
+        user.createMessage({
+            text: text,
+        });
+        res.status(201).json({ success: true, message: 'message added successfully', data: { name: req.user.username, message: text } });
+    }
+    else {
+        res.status(400).json({ success: false, message: 'user not found' });
+    }
 }));
-app.use('/message', message_1.default);
-app.use('/', user_1.default);
-db_1.default.sync()
-    .then(() => {
-    app.listen(5000, () => __awaiter(void 0, void 0, void 0, function* () {
-        console.log('server started at port 5000');
-        try {
-            yield db_1.default.authenticate();
-            console.log('connection has been established successfully.');
-        }
-        catch (error) {
-            console.error('unable to connect to the database:', error);
-        }
-    }));
-})
-    .catch((err) => {
-    console.error('error synchronizing the database', err);
-});
+exports.default = router;

@@ -26,9 +26,9 @@ const authenticate = (req, res, next) => {
         }
         else {
             const id = decrptedToken.id;
-            console.log(decrptedToken);
+            // console.log(decrptedToken);
             const user = yield user_1.default.findOne({ where: { id: id } });
-            console.log(user);
+            // console.log(user);
             if (!user) {
                 res.status(401).json({ success: false, message: 'user does not exist' });
             }

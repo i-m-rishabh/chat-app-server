@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import userRoutes from './routes/user';
+import messageRoutes from './routes/message';
 import sequelize from './database/db';
 
 const app = express();
@@ -13,8 +14,9 @@ app.use(
         }
     )
     );
-
+app.use('/message', messageRoutes);
 app.use('/', userRoutes);
+
 
 
 

@@ -1,5 +1,6 @@
 import Sequelize from 'sequelize';
 import sequelize from '../database/db';
+import Message from './message';
 
 const User = sequelize.define('user', {
     username: {
@@ -25,4 +26,6 @@ const User = sequelize.define('user', {
     }
 });
 
+Message.belongsTo(User);
+User.hasMany(Message);
 export default User;

@@ -24,7 +24,7 @@ app.use((0, cors_1.default)({
 }));
 app.use('/message', message_1.default);
 app.use('/', user_1.default);
-db_1.default.sync()
+db_1.default.sync({ force: true })
     .then(() => {
     app.listen(5000, () => __awaiter(void 0, void 0, void 0, function* () {
         console.log('server started at port 5000');

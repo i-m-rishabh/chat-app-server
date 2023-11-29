@@ -9,6 +9,10 @@ const Message = db_1.default.define('message', {
     text: {
         type: sequelize_1.default.STRING,
         allowNull: false,
+    },
+    username: {
+        type: sequelize_1.default.STRING,
+        allowNull: false,
     }
 });
 exports.default = Message;

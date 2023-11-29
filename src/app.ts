@@ -20,7 +20,7 @@ app.use('/', userRoutes);
 
 
 
-sequelize.sync({force: true})
+sequelize.sync()
 .then(()=>{
     app.listen(5000, async()=>{
         console.log('server started at port 5000')

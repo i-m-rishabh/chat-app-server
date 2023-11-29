@@ -6,7 +6,8 @@ import User from "../models/user";
 import jwt from 'jsonwebtoken';
 
 const authenticate = (req:any , res: any, next:any) => {
-    const token = req.headers['authorization'];
+    const token = req.headers.authorization;
+    console.log(token);
     jwt.verify(token, 'my-secret-key', async (err:any, decrptedToken:any)=>{
         if(err){
             console.log(err);

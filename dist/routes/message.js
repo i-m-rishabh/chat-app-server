@@ -16,6 +16,7 @@ const express_1 = __importDefault(require("express"));
 const authenticate_1 = __importDefault(require("../auth/authenticate"));
 const user_1 = __importDefault(require("../models/user"));
 const message_1 = __importDefault(require("../models/message"));
+const sequelize_1 = __importDefault(require("sequelize"));
 const router = express_1.default.Router();
 router.post('/add-message', authenticate_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const text = req.body.text;
@@ -34,7 +35,15 @@ router.post('/add-message', authenticate_1.default, (req, res) => __awaiter(void
 }));
 router.get('/get-messages', authenticate_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const messages = yield message_1.default.findAll();
+        const lastMessageId = req.query.messageId;
+        // const messages = await Message.findAll({where:{id:{gt:lastMessageId}}});
+        const messages = yield message_1.default.findAll({
+            where: {
+                id: {
+                    [sequelize_1.default.Op.gt]: lastMessageId,
+                },
+            },
+        });
         console.log(messages);
         if (messages) {
             res.status(200).json({ success: true, data: messages });

@@ -23,8 +23,17 @@ router.post('/add-message', authenticate, async (req: any, res: any) => {
 
 router.get('/get-messages', authenticate,  async (req: any, res: any) => {
     try {
-        const messages = await Message.findAll();
-        console.log(messages);
+        const lastMessageId = req.query.messageId;
+        // const messages = await Message.findAll({where:{id:{gt:lastMessageId}}});
+        const messages = await Message.findAll({
+            where: {
+              id: {
+                [Sequelize.Op.gt]: lastMessageId,
+              },
+            },
+          });
+          
+        // console.log(messages);
         if (messages) {
             res.status(200).json({ success: true, data: messages });
         } else {

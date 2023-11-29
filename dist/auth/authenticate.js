@@ -18,7 +18,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const user_1 = __importDefault(require("../models/user"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const authenticate = (req, res, next) => {
-    const token = req.headers['authorization'];
+    const token = req.headers.authorization;
+    console.log(token);
     jsonwebtoken_1.default.verify(token, 'my-secret-key', (err, decrptedToken) => __awaiter(void 0, void 0, void 0, function* () {
         if (err) {
             console.log(err);

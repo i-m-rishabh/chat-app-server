@@ -3,6 +3,7 @@ import User from '../models/user';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import authenticate from '../auth/authenticate';
+import Group from '../models/group';
 
 const router = express.Router();
 
@@ -15,13 +16,17 @@ router.post('/signup', async (req, res) => {
     try {
         bcrypt.hash(password, 10, async function (err: any, hash: string) {
             try {
-                await User.create({
+                const user = await User.create({
                     username: username,
                     email: email,
                     password: hash,
                     phone: phone,
                     isActive: false,
                 });
+                const universalGroup: any = await Group.findOne({ where: { id: 1 } });
+                if (universalGroup) {
+                    await universalGroup.addUser(user);
+                }
                 res.status(200).json({ success: true, message: 'signed up successfully' });
             }
             catch (error: any) {
@@ -80,13 +85,35 @@ router.get('/logout', authenticate, async (req: any, res: any) => {
         const user = req.user;
         if (!user || !user.id) {
             return res.status(401).json({ success: false, message: 'User not authenticated' });
-        }else{
+        } else {
             await User.update({ isActive: false }, { where: { id: user.id } });
             res.status(200).json({ success: true, message: 'successfully logged out' });
         }
     } catch (error) {
         console.error(error);
         res.status(400).json({ success: false, message: 'error in active status update' })
+    }
+})
+
+router.get('/get-all-users', async (req: any, res: any) => {
+    try {
+        const users = await User.findAll();
+        res.status(200).json({ success: true, data: users });
+    } catch (err) {
+        console.log(err);
+        res.status(400).json({ success: false, error: err });
+    }
+})
+
+router.get('/get-users/:groupid', authenticate, async (req: any, res: any) => {
+    try {
+        const id = req.params.groupid;
+        const group:any = await Group.findByPk(id);
+        const users = await group.getUsers();
+        res.status(200).json({ success: true, data: users })
+    } catch (err) {
+        console.log(err);
+        res.status(400).json({ success: false, error: err })
     }
 })
 

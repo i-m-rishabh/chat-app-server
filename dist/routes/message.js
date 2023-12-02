@@ -18,14 +18,16 @@ const user_1 = __importDefault(require("../models/user"));
 const message_1 = __importDefault(require("../models/message"));
 const sequelize_1 = __importDefault(require("sequelize"));
 const router = express_1.default.Router();
-router.post('/add-message', authenticate_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.post('/add-message/:groupid', authenticate_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const text = req.body.text;
+    const groupId = +req.params.groupid;
     const user = yield user_1.default.findOne({ where: { id: req.user.id } });
     // console.log(user);
     if (user) {
-        user.createMessage({
+        yield user.createMessage({
             text: text,
             username: user.username,
+            groupId: groupId,
         });
         res.status(201).json({ success: true, message: 'message added successfully', data: { name: req.user.username, message: text } });
     }
@@ -33,12 +35,14 @@ router.post('/add-message', authenticate_1.default, (req, res) => __awaiter(void
         res.status(400).json({ success: false, message: 'user not found' });
     }
 }));
-router.get('/get-messages', authenticate_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.get('/get-messages/:groupId', authenticate_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        const groupId = req.params.groupId;
         const lastMessageId = req.query.messageId;
         // const messages = await Message.findAll({where:{id:{gt:lastMessageId}}});
         const messages = yield message_1.default.findAll({
             where: {
+                groupId: groupId,
                 id: {
                     [sequelize_1.default.Op.gt]: lastMessageId,
                 },
@@ -51,22 +55,6 @@ router.get('/get-messages', authenticate_1.default, (req, res) => __awaiter(void
         else {
             throw new Error('error in getting messages');
         }
-        // const data = await User.findAll({
-        //     attributes: ['username'],
-        //     include: [
-        //       {
-        //         model: Message,
-        //         attributes: ['text'],
-        //         where: { userId: Sequelize.col('user.id') },
-        //         required: true, // Use 'required: true' for INNER JOIN
-        //       },
-        //     ],
-        //   })
-        //   if(data){
-        //     res.status(200).json({ success: true, data: data });
-        //   }else{
-        //     throw new Error('error in getting all messages');
-        //   }
     }
     catch (err) {
         console.log(err);

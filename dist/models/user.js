@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = __importDefault(require("sequelize"));
 const db_1 = __importDefault(require("../database/db"));
 const message_1 = __importDefault(require("./message"));
+const group_1 = __importDefault(require("./group"));
 const User = db_1.default.define('user', {
     username: {
         type: sequelize_1.default.STRING,
@@ -30,4 +31,8 @@ const User = db_1.default.define('user', {
 });
 message_1.default.belongsTo(User);
 User.hasMany(message_1.default);
+message_1.default.belongsTo(group_1.default);
+group_1.default.hasMany(message_1.default);
+group_1.default.belongsToMany(User, { through: 'userGroups' });
+User.belongsToMany(group_1.default, { through: 'userGroups' });
 exports.default = User;

@@ -6,14 +6,16 @@ import Sequelize from 'sequelize';
 
 const router = express.Router();
 
-router.post('/add-message', authenticate, async (req: any, res: any) => {
+router.post('/add-message/:groupid', authenticate, async (req: any, res: any) => {
     const text = req.body.text;
+    const groupId = +req.params.groupid;
     const user: any = await User.findOne({ where: { id: req.user.id } });
     // console.log(user);
     if (user) {
-        user.createMessage({
+        await user.createMessage({
             text: text,
             username: user.username,
+            groupId: groupId,
         });
         res.status(201).json({ success: true, message: 'message added successfully', data: { name: req.user.username, message: text } });
     } else {
@@ -21,45 +23,30 @@ router.post('/add-message', authenticate, async (req: any, res: any) => {
     }
 })
 
-router.get('/get-messages', authenticate,  async (req: any, res: any) => {
+router.get('/get-messages/:groupId', authenticate, async (req: any, res: any) => {
     try {
+        const groupId = req.params.groupId;
         const lastMessageId = req.query.messageId;
         // const messages = await Message.findAll({where:{id:{gt:lastMessageId}}});
         const messages = await Message.findAll({
             where: {
-              id: {
-                [Sequelize.Op.gt]: lastMessageId,
-              },
+                groupId: groupId,
+                id: {
+                    [Sequelize.Op.gt]: lastMessageId,
+                },
             },
-          });
-          
-        // console.log(messages);
+        });
+
+        console.log(messages);
         if (messages) {
             res.status(200).json({ success: true, data: messages });
         } else {
             throw new Error('error in getting messages');
         }
 
-        // const data = await User.findAll({
-        //     attributes: ['username'],
-        //     include: [
-        //       {
-        //         model: Message,
-        //         attributes: ['text'],
-        //         where: { userId: Sequelize.col('user.id') },
-        //         required: true, // Use 'required: true' for INNER JOIN
-        //       },
-        //     ],
-        //   })
-          
-        //   if(data){
-        //     res.status(200).json({ success: true, data: data });
-        //   }else{
-        //     throw new Error('error in getting all messages');
-        //   }
     } catch (err) {
         console.log(err);
-        res.status(400).json({success:false, error: err});
+        res.status(400).json({ success: false, error: err });
     }
 })
 

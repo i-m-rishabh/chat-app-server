@@ -17,6 +17,7 @@ const user_1 = __importDefault(require("../models/user"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const authenticate_1 = __importDefault(require("../auth/authenticate"));
+const group_1 = __importDefault(require("../models/group"));
 const router = express_1.default.Router();
 router.post('/signup', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const userData = req.body;
@@ -26,13 +27,17 @@ router.post('/signup', (req, res) => __awaiter(void 0, void 0, void 0, function*
         bcrypt_1.default.hash(password, 10, function (err, hash) {
             return __awaiter(this, void 0, void 0, function* () {
                 try {
-                    yield user_1.default.create({
+                    const user = yield user_1.default.create({
                         username: username,
                         email: email,
                         password: hash,
                         phone: phone,
                         isActive: false,
                     });
+                    const universalGroup = yield group_1.default.findOne({ where: { id: 1 } });
+                    if (universalGroup) {
+                        yield universalGroup.addUser(user);
+                    }
                     res.status(200).json({ success: true, message: 'signed up successfully' });
                 }
                 catch (error) {
@@ -98,6 +103,28 @@ router.get('/logout', authenticate_1.default, (req, res) => __awaiter(void 0, vo
     catch (error) {
         console.error(error);
         res.status(400).json({ success: false, message: 'error in active status update' });
+    }
+}));
+router.get('/get-all-users', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const users = yield user_1.default.findAll();
+        res.status(200).json({ success: true, data: users });
+    }
+    catch (err) {
+        console.log(err);
+        res.status(400).json({ success: false, error: err });
+    }
+}));
+router.get('/get-users/:groupid', authenticate_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const id = req.params.groupid;
+        const group = yield group_1.default.findByPk(id);
+        const users = yield group.getUsers();
+        res.status(200).json({ success: true, data: users });
+    }
+    catch (err) {
+        console.log(err);
+        res.status(400).json({ success: false, error: err });
     }
 }));
 exports.default = router;

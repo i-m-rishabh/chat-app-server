@@ -2,6 +2,7 @@ import Sequelize from 'sequelize';
 import sequelize from '../database/db';
 import Message from './message';
 import Group from './group';
+import UserGroups from './userGroups';
 
 const User = sequelize.define('user', {
     username: {
@@ -33,7 +34,7 @@ User.hasMany(Message);
 Message.belongsTo(Group);
 Group.hasMany(Message);
 
-Group.belongsToMany(User, {through: 'userGroups'});
-User.belongsToMany(Group, {through: 'userGroups'});
+Group.belongsToMany(User, {through: UserGroups});
+User.belongsToMany(Group, {through: UserGroups});
 
 export default User;

@@ -34,10 +34,11 @@ router.post('/signup', (req, res) => __awaiter(void 0, void 0, void 0, function*
                         phone: phone,
                         isActive: false,
                     });
-                    const universalGroup = yield group_1.default.findOne({ where: { id: 1 } });
-                    if (universalGroup) {
-                        yield universalGroup.addUser(user);
-                    }
+                    // THIS LOGIC IS FOR UNIVERSAL GROUP
+                    // const universalGroup: any = await Group.findOne({ where: { id: 1 } });
+                    // if (universalGroup) {
+                    //     await universalGroup.addUser(user);
+                    // }
                     res.status(200).json({ success: true, message: 'signed up successfully' });
                 }
                 catch (error) {

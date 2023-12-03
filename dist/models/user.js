@@ -7,6 +7,7 @@ const sequelize_1 = __importDefault(require("sequelize"));
 const db_1 = __importDefault(require("../database/db"));
 const message_1 = __importDefault(require("./message"));
 const group_1 = __importDefault(require("./group"));
+const userGroups_1 = __importDefault(require("./userGroups"));
 const User = db_1.default.define('user', {
     username: {
         type: sequelize_1.default.STRING,
@@ -33,6 +34,6 @@ message_1.default.belongsTo(User);
 User.hasMany(message_1.default);
 message_1.default.belongsTo(group_1.default);
 group_1.default.hasMany(message_1.default);
-group_1.default.belongsToMany(User, { through: 'userGroups' });
-User.belongsToMany(group_1.default, { through: 'userGroups' });
+group_1.default.belongsToMany(User, { through: userGroups_1.default });
+User.belongsToMany(group_1.default, { through: userGroups_1.default });
 exports.default = User;

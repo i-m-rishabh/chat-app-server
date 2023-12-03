@@ -118,5 +118,18 @@ router.get('/get-users/:groupid', authenticate, async (req: any, res: any) => {
     }
 })
 
+router.get('/get-current-user/:groupId', authenticate, async(req:any, res:any)=>{
+    try{
+        const groupId = req.params.groupId;
+    const group:any = await Group.findByPk(groupId);
+    const users = await group.getUsers({where: {id: req.user.id}})
+    // console.log(['users', users]);
+    res.status(200).json({success:true, data:users[0]});
+    }catch(error){
+        console.error(error);
+        res.status(400).json({success:false, error: error});
+    }
+})
+
 
 export default router;

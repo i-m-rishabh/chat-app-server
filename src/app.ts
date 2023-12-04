@@ -21,7 +21,7 @@ app.use('/group', groupRoutes);
 
 
 
-
+// synchronizing the sequellize
 sequelize.sync()
 .then(()=>{
     app.listen(5000, async()=>{

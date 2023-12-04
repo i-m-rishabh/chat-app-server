@@ -18,6 +18,7 @@ const user_1 = __importDefault(require("./routes/user"));
 const message_1 = __importDefault(require("./routes/message"));
 const group_1 = __importDefault(require("./routes/group"));
 const db_1 = __importDefault(require("./database/db"));
+const path_1 = __importDefault(require("path"));
 const bodyParser = require('body-parser');
 const app = (0, express_1.default)();
 app.use(bodyParser.json({ limit: '50mb' }));
@@ -25,10 +26,15 @@ app.use(express_1.default.json());
 app.use((0, cors_1.default)({
     origin: "http://localhost:3000"
 }));
+const buildPath = path_1.default.join(__dirname, '../../chat-app-client/build');
+app.use(express_1.default.static(buildPath));
 app.use('/message', message_1.default);
 app.use('/', user_1.default);
 app.use('/group', group_1.default);
 // synchronizing the sequellize
+app.get('/*', (req, res) => {
+    res.sendFile('index.html');
+});
 db_1.default.sync()
     .then(() => {
     app.listen(5000, () => __awaiter(void 0, void 0, void 0, function* () {

@@ -22,12 +22,18 @@ router.post('/add-message/:groupid', authenticate_1.default, (req, res) => __awa
     const text = req.body.text;
     const groupId = +req.params.groupid;
     const user = yield user_1.default.findOne({ where: { id: req.user.id } });
+    const io = req.io;
     // console.log(user);
     if (user) {
         yield user.createMessage({
             text: text,
             username: user.username,
             groupId: groupId,
+        });
+        // Emit the message to all clients in the group
+        io.to(groupId.toString()).emit('chat message', {
+            username: user.username,
+            text: text,
         });
         res.status(201).json({ success: true, message: 'message added successfully', data: { name: req.user.username, message: text } });
     }

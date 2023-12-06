@@ -10,6 +10,9 @@ router.post('/add-message/:groupid', authenticate, async (req: any, res: any) =>
     const text = req.body.text;
     const groupId = +req.params.groupid;
     const user: any = await User.findOne({ where: { id: req.user.id } });
+
+    const io = req.io;
+
     // console.log(user);
     if (user) {
         await user.createMessage({
@@ -17,6 +20,13 @@ router.post('/add-message/:groupid', authenticate, async (req: any, res: any) =>
             username: user.username,
             groupId: groupId,
         });
+
+        // Emit the message to all clients in the group
+        io.to(groupId.toString()).emit('chat message', {
+            username:user.username,
+            text: text,
+        });
+
         res.status(201).json({ success: true, message: 'message added successfully', data: { name: req.user.username, message: text } });
     } else {
         res.status(400).json({ success: false, message: 'user not found' });

@@ -4,8 +4,14 @@ import userRoutes from './routes/user';
 import messageRoutes from './routes/message';
 import groupRoutes from './routes/group';
 import sequelize from './database/db';
+import http from 'http';
 
 const app = express();
+
+const httpServer = http.createServer(app);
+import initSocketServer from './socketServer';
+
+const io = initSocketServer(httpServer);
 
 app.use(express.json());
 app.use(
@@ -15,6 +21,12 @@ app.use(
         }
     )
     );
+
+app.use((req:any, res:any, next)=>{
+    req.io = io;
+    next();
+});
+
 app.use('/message', messageRoutes);
 app.use('/', userRoutes);
 app.use('/group', groupRoutes);
@@ -24,7 +36,7 @@ app.use('/group', groupRoutes);
 // synchronizing the sequellize
 sequelize.sync()
 .then(()=>{
-    app.listen(5000, async()=>{
+    httpServer.listen(5000, async()=>{
         console.log('server started at port 5000')
         try{
             await sequelize.authenticate();

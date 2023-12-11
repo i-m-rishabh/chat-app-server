@@ -4,9 +4,14 @@ import userRoutes from './routes/user';
 import messageRoutes from './routes/message';
 import groupRoutes from './routes/group';
 import sequelize from './database/db';
+const bodyParser = require('body-parser');
+
+
+
 
 const app = express();
 
+app.use(bodyParser.json({ limit: '50mb' }));
 app.use(express.json());
 app.use(
     cors(

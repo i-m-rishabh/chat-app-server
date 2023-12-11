@@ -8,11 +8,18 @@ const db_1 = __importDefault(require("../database/db"));
 const Message = db_1.default.define('message', {
     text: {
         type: sequelize_1.default.STRING,
-        allowNull: false,
     },
     username: {
         type: sequelize_1.default.STRING,
         allowNull: false,
-    }
+    },
+    multimediaUrl: {
+        type: sequelize_1.default.STRING,
+    },
+    type: {
+        type: sequelize_1.default.ENUM('text', 'multimedia'),
+        allowNull: false,
+        defaultValue: 'text', // Assuming text is the default type
+    },
 });
 exports.default = Message;

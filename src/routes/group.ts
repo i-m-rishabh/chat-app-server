@@ -68,7 +68,7 @@ router.get('/get-admins/:groupId', authenticate, async (req: any, res: any) => {
         console.error(err);
         res.status(400).json({ success: false, error: err });
     }
-
+    
 });
 
 router.post('/update-admins/:groupId', authenticate, async (req:any, res:any)=>{

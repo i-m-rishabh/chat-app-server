@@ -30,7 +30,7 @@ router.post('/add-message/:groupid', authenticate, async (req: any, res: any) =>
 
 router.post('/add-multimedia/:groupid', authenticate,  upload.single('file'), async (req: any, res: any) => {
     try {
-        const file = req.file; // File details are available here
+        const file = req.file; 
 
         //upload to s3
         const fileLoaction = await uploadFile(file);
